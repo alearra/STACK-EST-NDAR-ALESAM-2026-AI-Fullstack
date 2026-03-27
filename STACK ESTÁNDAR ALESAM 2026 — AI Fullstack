@@ -1,0 +1,418 @@
+STACK ESTÁNDAR ALESAM 2026 — AI Fullstack
+Aplicar en TODOS los proyectos nuevos de Alesam.
+Este prompt va al inicio de cada proyecto en Cursor.
+
+## FILOSOFÍA
+Proyectos modernos, livianos, ágiles y de bajo consumo 
+de recursos. Organizados por feature, no por capa técnica.
+Clean Architecture + Vertical Slicing.
+
+## STACK COMPLETO
+
+### FRONTEND
+- Next.js 16 (App Router)
+- Tailwind CSS v4
+- Zustand (estado global)
+- TanStack Query (server state, caché, fetching)
+- shadcn/ui (componentes base)
+- TypeScript estricto
+
+### BACKEND
+- Node.js + Fastify (API routes o servidor dedicado)
+- Drizzle ORM (queries type-safe)
+- Supabase (base de datos PostgreSQL + Auth + Storage)
+- Redis (caché, rate limiting, sesiones)
+- TypeScript estricto
+
+### CAPA DE IA
+- Vercel AI SDK (streaming + tool calling)
+- OpenAI API y/o Anthropic API según el caso
+- pgvector (búsqueda semántica sobre PostgreSQL)
+- MCP (Model Context Protocol) para conectar 
+  herramientas externas a LLMs
+
+### DEVOPS
+- Vercel o Cloudflare Pages (frontend)
+- Docker (contenedores)
+- GitHub Actions (CI/CD)
+- Coolify o Dokploy (self-hosted para backend/servicios)
+
+### TESTING
+- Vitest (unit + integration)
+- Playwright (E2E)
+- Biome (linting + formatting — reemplaza ESLint + Prettier)
+
+### AI CODING
+- Claude Code (principal)
+- GitHub Copilot (asistencia inline)
+- OpenClaw (complementario)
+
+## ARQUITECTURA — Clean Architecture + Vertical Slicing
+
+Organizar SIEMPRE por feature, nunca por capa técnica.
+
+src/
+features/
+[feature-name]/
+components/       # UI específica del feature
+hooks/            # Hooks del feature
+actions/          # Server actions
+api/              # Endpoints del feature
+schemas/          # Validaciones Zod
+types/            # Tipos TypeScript
+utils/            # Helpers del feature
+index.ts          # Barrel export
+shared/
+components/         # Componentes reutilizables
+hooks/              # Hooks globales
+lib/                # Configuraciones (supabase, redis, ai)
+types/              # Tipos globales
+utils/              # Helpers globales
+app/                  # Next.js App Router
+
+Regla: si algo se usa en más de un feature → va a shared/
+Regla: si algo es de un solo feature → se queda adentro
+
+## CONVENCIONES DE CÓDIGO
+
+### TypeScript
+- strict: true en tsconfig.json
+- No usar any — usar unknown y tipar correctamente
+- Inferir tipos cuando es posible — no tipar lo obvio
+- Zod para validación de inputs en runtime
+
+### Componentes
+- Server Components por defecto
+- Client Components solo cuando hay interactividad
+- Marcar explícitamente con "use client"
+- Componentes pequeños — máximo 150 líneas
+- Un componente = una responsabilidad
+
+### Estado
+- TanStack Query para server state (datos de API/DB)
+- Zustand para UI state global (modales, sidebar, tema)
+- useState para estado local del componente
+- No usar Context para estado frecuente — usar Zustand
+
+### Queries Supabase / Drizzle
+- SIEMPRE seleccionar solo columnas necesarias
+- SIEMPRE agregar .limit(N) en listas
+- SIEMPRE agregar índices en columnas de búsqueda
+- NUNCA hacer queries en loops — usar joins o batch
+
+### API con Fastify
+- Validación de inputs con Zod en cada endpoint
+- Rate limiting con Redis en endpoints públicos
+- Respuestas tipadas — siempre definir el schema
+- Errores con códigos HTTP correctos
+
+### IA con Vercel AI SDK
+- Streaming por defecto para respuestas largas
+- Tool calling para acciones sobre datos reales
+- System prompts en archivos separados — no inline
+- pgvector para contexto semántico cuando aplique
+
+## PERFORMANCE — REGLAS INNEGOCIABLES
+- Bundle size: < 200kb JS inicial
+- LCP: < 2.5s
+- No waterfall de queries — parallelizar con Promise.all
+- Lazy load de componentes pesados con dynamic()
+- Imágenes siempre con next/image
+- Cleanup de suscripciones realtime en useEffect
+
+## SEGURIDAD — REGLAS INNEGOCIABLES
+- Variables privadas NUNCA con NEXT_PUBLIC_
+- Validar inputs en servidor — nunca confiar en el cliente
+- RLS habilitado en todas las tablas de Supabase
+- API keys solo en variables de entorno
+- Rate limiting en todos los endpoints públicos
+
+## ESTRUCTURA DE ARCHIVOS INICIAL
+
+proyecto/
+src/
+features/
+auth/
+[feature-principal]/
+shared/
+components/
+ui/             # shadcn/ui components
+hooks/
+lib/
+supabase.ts
+redis.ts
+ai.ts
+types/
+utils/
+app/
+layout.tsx
+page.tsx
+globals.css
+tests/
+unit/               # Vitest
+e2e/                # Playwright
+docker/
+Dockerfile
+docker-compose.yml
+.github/
+workflows/
+ci.yml
+deploy.yml
+biome.json
+drizzle.config.ts
+next.config.ts
+tsconfig.json
+RULES.md
+README.md
+
+## VARIABLES DE ENTORNO — TEMPLATE
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Redis
+REDIS_URL=
+
+# IA
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+
+# App
+NEXT_PUBLIC_APP_URL=
+CRON_SECRET=
+
+# DevOps
+VERCEL_TOKEN=
+```
+
+## CHECKLIST NUEVO PROYECTO
+
+Antes de escribir una línea de código:
+- [ ] Crear repo en GitHub con nombre kebab-case
+- [ ] Inicializar Next.js 16 con TypeScript
+- [ ] Configurar Tailwind v4
+- [ ] Instalar y configurar shadcn/ui
+- [ ] Configurar Biome (biome.json)
+- [ ] Configurar Zustand store base
+- [ ] Configurar TanStack Query provider
+- [ ] Conectar Supabase (client + server)
+- [ ] Conectar Redis
+- [ ] Configurar Vercel AI SDK
+- [ ] Crear estructura de carpetas features/shared/app
+- [ ] Copiar RULES.md estándar de Alesam
+- [ ] Configurar GitHub Actions (CI + deploy)
+- [ ] Variables de entorno en Vercel/Coolify
+- [ ] RLS habilitado en Supabase
+
+## NOTAS FINALES
+- Este stack es el estándar de Alesam para 2026
+- No agregar dependencias fuera de este stack sin justificación
+- Toda excepción debe documentarse en RULES.md del proyecto
+- Ante la duda: menos dependencias, más vanilla
+
+## README.md estándar
+
+# [Nombre del Proyecto]
+
+> Breve descripción del proyecto en una línea.
+
+Desarrollado por [Alesam](https://alesamstudio.vercel.app) 
+— Software Factory desde Mendoza, Argentina.
+
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Frontend | Next.js 16 + Tailwind v4 + shadcn/ui |
+| Estado | Zustand + TanStack Query |
+| Backend | Node.js + Fastify + Drizzle ORM |
+| Base de datos | Supabase (PostgreSQL) |
+| Caché | Redis |
+| IA | Vercel AI SDK + OpenAI/Anthropic + pgvector |
+| DevOps | Vercel + Docker + GitHub Actions |
+| Testing | Vitest + Playwright + Biome |
+| Lenguaje | TypeScript estricto |
+
+## Arquitectura
+
+Clean Architecture + Vertical Slicing.
+Organizado por feature, no por capa técnica.
+```
+src/
+  features/     # Funcionalidades del negocio
+  shared/       # Código reutilizable
+  app/          # Next.js App Router
+```
+
+## Inicio rápido
+```bash
+# Instalar dependencias
+npm install
+
+# Variables de entorno
+cp .env.example .env.local
+
+# Base de datos
+npm run db:push
+
+# Desarrollo
+npm run dev
+```
+
+## Scripts
+```bash
+npm run dev          # Desarrollo
+npm run build        # Build producción
+npm run test         # Vitest
+npm run test:e2e     # Playwright
+npm run lint         # Biome check
+npm run lint:fix     # Biome fix
+npm run db:push      # Drizzle push
+npm run db:studio    # Drizzle Studio
+```
+
+## Variables de entorno
+
+Ver `.env.example` para la lista completa.
+Nunca commitear `.env.local`.
+
+## Estándares
+
+Ver `RULES.md` para convenciones de código,
+arquitectura y reglas del proyecto.
+
+---
+
+© [año] Alesam — alesamstudio.vercel.app
+
+## RULES.md estándar
+
+# RULES.md — Estándares Alesam 2026
+
+Este archivo define las reglas y convenciones 
+de este proyecto. Aplica a todos los proyectos de Alesam.
+
+## Stack y versiones
+
+- Next.js 16 (App Router) — NO Pages Router
+- Tailwind CSS v4 — NO v3
+- TypeScript strict — NO JavaScript
+- Biome — NO ESLint + Prettier
+- Drizzle ORM — NO Prisma
+- Zustand — NO Redux / Context para estado global
+- TanStack Query — NO SWR / fetch manual
+
+## Arquitectura
+
+### Vertical Slicing
+SIEMPRE organizar por feature:
+src/features/[feature]/components|hooks|actions|api|schemas|types
+
+NUNCA organizar por capa:
+src/components/ src/hooks/ src/utils/ (a nivel raíz)
+
+### Componentes
+- Server Component por defecto
+- "use client" solo cuando hay interactividad real
+- Máximo 150 líneas por componente
+- Un componente = una responsabilidad
+- Props tipadas con TypeScript — nunca any
+
+### Estado
+- Server state → TanStack Query
+- UI state global → Zustand
+- UI state local → useState
+- Formularios → react-hook-form + Zod
+
+## Base de datos
+
+### Queries Supabase
+- SIEMPRE .select('col1, col2') — nunca select('*')
+- SIEMPRE .limit(N) en listas
+- NUNCA queries en loops
+- SIEMPRE índices en columnas de .eq() y .order()
+
+### Drizzle ORM
+- Schema en src/shared/lib/db/schema.ts
+- Migrations con drizzle-kit
+- Tipos inferidos del schema — nunca duplicar tipos
+
+### Supabase Realtime
+- SIEMPRE cleanup en return del useEffect
+- Un channel por componente máximo
+- Nombres de channel únicos y descriptivos
+
+## IA
+
+### Vercel AI SDK
+- Streaming por defecto para respuestas largas
+- System prompts en archivos .ts separados
+- Tool calling para acciones sobre datos reales
+- Nunca exponer API keys al cliente
+
+### pgvector
+- Índice HNSW para búsqueda semántica
+- Embeddings generados server-side
+- Dimensiones según el modelo (OpenAI: 1536)
+
+## Performance
+
+- Bundle JS inicial: < 200kb
+- LCP objetivo: < 2.5s
+- Lazy load con dynamic() para componentes > 50kb
+- Imágenes siempre con next/image
+- Promise.all para queries paralelas
+- React.memo solo cuando hay problema real de renders
+
+## Seguridad
+
+- Variables privadas: sin NEXT_PUBLIC_
+- Variables públicas: con NEXT_PUBLIC_
+- RLS habilitado en todas las tablas Supabase
+- Validación server-side con Zod en cada endpoint
+- Rate limiting en endpoints públicos con Redis
+
+## Testing
+
+- Vitest para unit e integration tests
+- Playwright para E2E — flows críticos del negocio
+- Coverage mínimo: 70% en features críticos
+- Tests en tests/ — mirror de src/features/
+
+## Git
+
+- Commits en español, imperativo: "Agrega módulo X"
+- Branches: feature/nombre, fix/nombre, chore/nombre
+- PR con descripción de qué hace y por qué
+- No commitear: .env, node_modules, .next
+
+## Naming
+
+- Archivos: kebab-case (mi-componente.tsx)
+- Componentes: PascalCase (MiComponente)
+- Hooks: camelCase con use (useMiHook)
+- Variables/funciones: camelCase
+- Constantes: UPPER_SNAKE_CASE
+- Tipos/Interfaces: PascalCase
+
+## DevOps
+
+- Deploy automático en push a main → Vercel/Cloudflare
+- Preview deploys en cada PR
+- Variables de entorno en Vercel dashboard — nunca en código
+- Docker para servicios self-hosted (backend, Redis)
+- Coolify o Dokploy para gestionar self-hosted
+
+## Excepciones
+
+Cualquier excepción a estas reglas debe:
+1. Documentarse acá con justificación
+2. Ser aprobada antes de implementarse
+3. Ser temporal si es posible
+
+---
+
+Última actualización: 2026
+Mantenido por: Alejandro Arra — Alesam

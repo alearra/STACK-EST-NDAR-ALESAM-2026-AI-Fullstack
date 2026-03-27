@@ -1,0 +1,1 @@
+STACK ESTÁNDAR ALESAM 2026 — AI Fullstack
